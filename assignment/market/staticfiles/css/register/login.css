@@ -1,0 +1,97 @@
+@import url(../main.css);
+body{
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    position: relative;
+}
+.login_container{
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 30px;
+    width: 450px;
+    height: 550px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.223);
+    gap: 40px;
+}
+.login_container > form{
+    height: 300px;
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    flex-direction: column;
+    gap: 30px;
+}
+.login_container form div{
+    width: 100%;
+    height: auto;
+}
+.login_container form input , form select{
+    width: 100%;
+    height: 50px;
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.500);
+    outline: none;
+    background-color: transparent;
+    padding-left: 10px;
+    padding-right: 40px;
+    margin-top: 15px;
+}
+.login_container  form  input::placeholder{
+    color: white;
+}
+.login_container  form input[type="submit"]{
+    background-color: #01113f95;
+    border: 1px solid #1d378473;
+    cursor: pointer;
+    padding-right: 0px;
+}
+.input_icon{
+    position: absolute;
+    top: 50px;
+    right: 20px;
+}
+.show_password{
+    cursor: pointer;
+}
+.login_container form div{
+    position: relative;
+}
+.sing_up{
+    width: 100%;
+    height: 120px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: column;
+}
+.sing_up_btn{
+    width: 100%;
+    height: 50px;
+    border: 1px solid rgba(255, 255, 255, 0.500);
+    background-color: rgba(255, 255, 255, 0.223);
+    display: grid;
+    place-items: center;
+    border-radius: 15px;
+}
+.message{
+    width: 450px;
+    height: 50px;
+    border: 1px solid rgba(255, 255, 255, 0.223);
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    position: absolute;
+    transition: 0.3s;
+    transform: translateY(-310px);
+}
+.x-mark{
+    cursor: pointer;
+}

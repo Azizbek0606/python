@@ -1,0 +1,46 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "roboto mono";
+    color: white;
+    list-style: none;
+    text-decoration: none;
+}
+body{
+    background: linear-gradient(43deg, #330137, #01103f);
+    background-attachment: fixed;
+}
+.header{
+    height: 140px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+.nav{
+    width: 95%;
+    height: 100px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 30px;
+    padding: 30px;
+    position: fixed;
+}
+.nav_items ul{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+}
+.logo{
+    width: 80px;
+    height: 80px;
+    border: 1px solid wheat ;
+    background: url(../../media/branding/logo.png);
+    background-size: cover;
+    background-repeat: no-repeat;
+}

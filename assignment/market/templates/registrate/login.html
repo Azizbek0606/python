@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/register/login.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>Login</title>
+</head>
+
+<body>
+    {% if messages %}
+    {% for message in messages %}
+    <div class="message" message_status="{{message.tags}}">
+        <p>
+            {{ message }}
+        </p>
+        <i class="fa-solid fa-x x-mark"></i>
+    </div>
+    {% endfor %}
+    {% endif %}
+    <div class="login_container">
+        <h2>Login</h2>
+        <form method="post">
+            {% csrf_token %}
+            <div>
+                <i class="fa-solid fa-user input_icon"></i>
+                <p>User Name</p>
+                <input type="text" name="username">
+            </div>
+            <div>
+                <i class="fa-solid fa-eye input_icon show_password"></i>
+                <p>Password</p>
+                <input type="password" name="password" id="password_input">
+            </div>
+            <div>
+                <input type="submit" value="Login">
+            </div>
+        </form>
+        <div class="sing_up">
+            <p>Don't have an account?</p>
+            <a href="{% url 'users:sign_up' %}" class="sing_up_btn">Sign Up</a>
+        </div>
+    </div>
+    <script src="{% static 'js/registrate.js' %}"></script>
+</body>
+
+</html>

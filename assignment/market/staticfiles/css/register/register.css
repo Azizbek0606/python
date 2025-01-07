@@ -1,0 +1,28 @@
+@import url(./login.css);
+.login_container > form{
+    height: 355px;
+    gap: 15px !important;
+}
+.login_container {
+    width: 750px;
+    gap: 15px;
+    padding: 20px;
+}
+.user_name_phone{
+    display: flex;
+    gap: 20px;
+}
+.login_container input{
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 5px;
+    outline: none;
+    font-size: 16px;
+}
+form .role_option{
+    color: #01103f;
+}
+.message{
+    width: 750px;
+}
