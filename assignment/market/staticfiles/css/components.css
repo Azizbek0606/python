@@ -1,0 +1,89 @@
+.modal_logout{
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 16, 64, 0.4);
+    backdrop-filter: blur(25px);
+    top: 0;
+    z-index: 1;
+    transform: translateY(-2500px);
+    transition: 0.3s;
+}
+.confirm_logot_modal{
+    width: 450px;
+    height: 250px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+    border-radius: 20px;
+}
+.notification_block{
+    width: 100%;
+    height: 70%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.confirm_buttons{
+    width: 100%;
+    height: 30%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding:10px;
+    gap: 10px;
+}
+.confirm_buttons button , .confirm_buttons a{
+    width: 50%;
+    height: 100%;
+    border: none;
+    outline: none;
+    background-color: transparent;
+    border-radius: 15px;
+    cursor: pointer;
+}
+.confirm_buttons a{
+    display: grid;
+    place-items: center;
+}
+.confirm_buttons a{
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.confirm_buttons button{
+    background-color: rgba(0, 16, 64, 0.4);
+}
+.message{
+    width: auto;
+    height: 50px;
+    border: 1px solid rgba(255, 255, 255, 0.223);
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    position: absolute;
+    transition: 0.3s;
+    gap: 20px;
+    top: 150px;
+    left: 40px;
+    backdrop-filter: blur(20px);
+    z-index: 999;
+    position: fixed;
+}
+.message[message_status="error"]{
+    background-color:  #3301373f;
+    border: 1px solid #3301379b;
+}
+.message[message_status="error"] p{
+    color: rgb(203, 44, 139) !important;
+}
+.x-mark{
+    cursor: pointer;
+}

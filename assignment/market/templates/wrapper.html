@@ -1,33 +1,107 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
-    <title>Hello world</title>
+    <link rel="stylesheet" href="{% static 'css/admin/admin.css' %}">
+    <link rel="stylesheet" href="{% static 'css/components.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>Market</title>
 </head>
-<body>
 
-    {% comment %} <h1><a href="{% url 'users:login' %}">Login</a></h1>
-    <h1><a href="{% url 'users:sign_up' %}">Registrate</a></h1>
-    <h1><a href="http://127.0.0.1:8000/admin/">admin page</a></h1> {% endcomment %}
+<body>
+    {% if messages %}
+    {% for message in messages %}
+    <div class="message" message_status="{{message.tags}}">
+        <p>
+            {{ message }}
+        </p>
+        <i class="fa-solid fa-x x-mark" onclick="close_message(this)"></i>
+    </div>
+    {% endfor %}
+    {% endif %}
     <div class="header">
         <div class="nav">
             <div class="logo">
-                <img src="{% static 'branding/logo.png' %}" alt="">
+                <img src="/media/branding/logo.png" width="100%" height="100%" alt="">
             </div>
             <div class="nav_items">
                 <ul>
-                    <li>Home</li>
-                    <li>Products</li>
-                    <li>Add Porduct</li>
-                    <li>Remove Porduct</li>
+                    <li>
+                        <a href='/'>
+                            Home
+                        </a>
+                    </li>
+                    {% if request.user.is_authenticated %}
+                    {% if request.user.is_superuser %}
+                    <div class="admin">
+                        <p>
+                            <i class="fa-solid fa-user-tie"></i>
+                            Admin
+                        </p>
+                        <p>
+                            <i class="fa-solid fa-circle-plus"></i>
+                            <a href="{% url 'products:create' %}">
+                                Add Product
+                            </a>
+                        </p>
+                        <p>
+                            <i class="fa-solid fa-circle-minus"></i>
+                            <a href="{% url 'products:remove_product' %}">Remove Product</a>
+                        </p>
+                        <p>
+                            <i class="fa-solid fa-pen"></i>
+                            <a href="{% url 'products:remove_product' %}">Update Product</a>
+                        </p>
+                        <p>
+                            <i class="fa-solid fa-truck"></i>
+                            Orders
+                        </p>
+                    </div>
+                    {% else %}
+                    <li>
+                        <a href="{% url 'users:profile' %}">My Profile</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'orders:orders' %}">Card</a>
+                    </li>
+                    {% endif %}
+                    <li onclick="confirm_modal_open(modal, modal_context, 'Are you sure? You want to logout', btn, '{% url 'users:logout' %}')"
+                        style="cursor:pointer;">
+                        Logout
+                    </li>
+
+                    {% else %}
+                    <li>
+                        <a href="{% url 'users:login' %}">Login</a>
+                    </li>
+                    {% endif %}
                 </ul>
+            </div>
+        </div>
+    </div>
+    <div class="modal_logout" id="modal">
+        <div class="confirm_logot_modal">
+            <div class="notification_block">
+                <p id="modal_context">
+                </p>
+            </div>
+            <div class="confirm_buttons">
+                <a id="btn">Yes</a>
+                <button onclick="confirm_modal_close(modal)">No</button>
             </div>
         </div>
     </div>
     {% block context %}
     {% endblock context %}
+    <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'js/components.js' %}"></script>
+
 </body>
+
 </html>

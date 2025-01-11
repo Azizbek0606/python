@@ -23,6 +23,10 @@
     </div>
     {% endfor %}
     {% endif %}
+     <a href="/" class="back_to_home">
+        <i class="fa-solid fa-chevron-left"></i>
+        Go Back
+    </a>
     <div class="login_container">
         <h2>Sign Up</h2>
         <form method="post" id="registration_form" onsubmit="return form_validator()">
@@ -71,6 +75,7 @@
             <a href="{% url 'users:login' %}" class="sing_up_btn">Login</a>
         </div>
     </div>
+    <script src="{% static 'js/components.js' %}"></script>
     <script src="{% static 'js/registrate.js' %}"></script>
 </body>
 

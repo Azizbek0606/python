@@ -19,10 +19,14 @@
         <p>
             {{ message }}
         </p>
-        <i class="fa-solid fa-x x-mark"></i>
+        <i class="fa-solid fa-x x-mark" onclick="close_message(this)"></i>
     </div>
     {% endfor %}
     {% endif %}
+    <a href="/" class="back_to_home">
+        <i class="fa-solid fa-chevron-left"></i>
+        Go Back
+    </a>
     <div class="login_container">
         <h2>Login</h2>
         <form method="post">
@@ -47,6 +51,7 @@
         </div>
     </div>
     <script src="{% static 'js/registrate.js' %}"></script>
+    <script src="{% static 'js/components.js' %}"></script>
 </body>
 
 </html>

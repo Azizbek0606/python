@@ -1,0 +1,201 @@
+.wrapper_profile{
+    width: 95%;
+    height: auto;
+    margin: 0 auto;
+    display: flex;
+    justify-content: flex-start;
+    gap: 30px;
+    padding: 20px 0px;
+}
+.profile_left_side{
+    width: 30%;
+    height: 500px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.profile_info{
+    width: 100%;
+    height: 40%;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 45px;
+    padding: 20px;
+}
+.user_name{
+    width: auto;
+    height: auto;
+    padding: 10px 20px;
+    border-radius: 15px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    text-align: center;
+}
+.main_info{
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 10px;
+}
+.canceled_orders{
+    width: 100%;
+    height: 55%;
+    background-color: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 45px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 20px;
+}
+.orders_info{
+    width: 68%;
+    height: 500px;
+    display: flex;
+    justify-content: space-between;
+}
+.orders_info > div{
+    width: 32%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 40px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.orders_info  div::-webkit-scrollbar{
+    width: 0;
+}
+.prfile_page_order_status{
+    width: 100%;
+    height: 50px;
+    border-radius: 20px;
+    display: grid;
+    place-items: center;
+}
+.prfile_page_order_status[status="pending"]{
+    background-color: rgba(255, 255, 0, 0.4);
+    border:1px solid  rgba(255, 255, 0, 0.7);
+}
+.prfile_page_order_status[status="processing"]{
+    background-color: #4682b450 ;
+    border:1px solid  #4682b490 ;
+}
+.prfile_page_order_status[status="completed"]{
+    background-color: #32cd3250 ;
+    border:1px solid  #32cd3290 ;
+}
+.prfile_page_order_status[status="cancelled"]{
+    background-color: #ff634750 ;
+    border:1px solid  #ff634790 ;
+}
+.canceled_orders_wrapper{
+    width: 100%;
+    height: auto;
+    max-height: 60%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.canceled_orders_wrapper::-webkit-scrollbar{
+    width: 0;
+}
+.canceled_order_detail_wrapper {
+    width: 100%;
+    height: 120px !important;
+    border: 1px solid #ff634790;
+    background-color: #ff634750;
+    border-radius: 20px;
+    padding: 10px;
+    position: relative;
+}
+
+.profile_order_info{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 20px;
+}
+.canceled_order_status{
+    position: absolute;
+    padding: 5px;
+    border-radius: 10px;
+    background-color: rgba(255, 0, 0, 0.693);
+    right: 10px;
+    bottom: 10px;
+}
+.canceled_product_image{
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    top: 10px;
+    right: 10px;
+}
+.canceled_product_image img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.profile_order_list_wrapper{
+    width: 100%;
+    height: 85%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border-radius: 20px;
+    padding: 5px;
+}
+.order_card_wrapper{
+    width: 100%;
+    height: 200px;
+    border-radius: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    background-color: rgba(255, 255, 255, 0.2);
+}
+.order_detail_top{
+    width: 100%;
+    height: 50%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 10px 0px 15px;
+}
+.order_detail_bottom{
+    width: 100%;
+    height: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 10px;
+    position: relative;
+}
+.profile_order_status{
+    width: auto;
+    height: 30px;
+    border-radius: 10px;
+    position: absolute;
+    top: 0px;
+    right: 10px;
+    padding: 0px 10px;
+}
+.profile_order_image{
+    width: 60px;
+    height: 60px;
+    border-radius: 20px;
+    overflow: hidden;
+}
+.profile_order_image img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}

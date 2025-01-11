@@ -1,0 +1,55 @@
+{% extends 'wrapper.html' %}
+{% load static %}
+{% block context %}
+<link rel="stylesheet" href="{% static 'css/admin/remove.css' %}">
+<div class="wrapper">
+    {% for product in products %}
+    <div class="product">
+        <div class="image_block">
+            <a href="{% url 'products:details' product.id %}">
+                <img src="{{ product.image.url }}" width="100%" height="100%" alt="">
+            </a>
+        </div>
+        <div class="product_details">
+            <div class="product_title">
+                <h4>
+                    <a href="{% url 'products:details' product.id %}">
+                        {{ product.name }}
+                    </a>
+                </h4>
+            </div>
+            <div class="product_price">
+                $ {{ product.price }}
+            </div>
+            <div class="product_created_time">
+                <div class="created_at">
+                    <p>
+                        Created At
+                    </p>
+                    <p>
+                        {{ product.created_at|date:"d/m/H:i" }}
+                    </p>
+                </div>
+                <div class="last_update">
+                    <p>
+                        Last Update
+                    </p>
+                    <p>
+                        {{ product.updated_at|date:"d/m/H:i" }}
+                    </p>
+                </div>
+            </div>
+            <div class="remove_product">
+                <a onclick="confirm_modal_open(modal, modal_context, 'Are you sure? You want Delete {{ product.name }}', btn, '{% url 'product:delete' product.id %}')"
+                        style="cursor:pointer;">
+                    <i class="fa-regular fa-trash-can"></i>
+                </a>
+                <a href="{% url 'products:update' product.id %}">
+                    <i class="fa-solid fa-pen"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock context %}

@@ -1,0 +1,58 @@
+{% extends 'wrapper.html' %}
+{% load static %}
+{% block context %}
+<div class="container">
+    <div class="form_wrapper">
+        <div class="title">
+            <center>
+                <h3>
+                    Add new product
+                </h3>
+            </center>
+        </div>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="create_fild">
+                <p>Name</p>
+                <input type="text" name="name" required>
+            </div>
+            <div class="num_inputs">
+                <div class="create_fild">
+                    <p>Price</p>
+                    <input type="number" step="0.01" name="price" required>
+                </div>
+                <div class="create_fild">
+                    <p>Quantity</p>
+                    <input type="number" name="quantity" required>
+                </div>
+            </div>
+            <div class="create_fild file_select">
+                <div>
+                    <label for="file_upload" class="image_btn">
+                        Product Image
+                    </label>
+                    <input type="file" id="file_upload" name="image" required>
+                    <span id="file_name">No file chosen</span>
+                </div>
+                <div class="product_category">
+                    <select name="category">
+                        <option selected disabled>Category</option>
+                        {% for i in category %}
+                        <option value="{{ i.id }}">{{ i.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="create_fild">
+                <p>Description</p>
+                <textarea name="description" required></textarea>
+            </div>
+            <div>
+                <input type="submit" value="Create Product">
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="{% static 'js/admin/admin.js' %}"></script>
+{% endblock context %}

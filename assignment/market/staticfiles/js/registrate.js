@@ -61,9 +61,3 @@ function form_validator() {
 
     return true;
 }
-
-
-function close_message(message) {
-    message.parentNode.style.transform = 'translateY(-1000px)'
-
-}

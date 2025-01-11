@@ -1,0 +1,81 @@
+{% extends "wrapper.html" %}
+{% load static %}
+{% block context %}
+<link rel="stylesheet" href="{% static 'css/order.css' %}">
+<div class="wrapper order_page_wrapper">
+    <div class="order_wrapper">
+        {% for product in order %}
+        <div class="detail_card">
+            <div class="detail_top">
+                <div class="detail_image">
+                    <img src="{{ product.product.image.url }}" alt="">
+                </div>
+                <div class="detail_top_context">
+                    <div>
+                        <h1>
+                            {{ product.product.name }}
+                        </h1>
+                    </div>
+                    <div class="price" {% if user.is_staff %} style="right: 200px;" {% endif %}>
+                        <p >
+                            $ {{ product.price }}  
+                            Total: $ <span class="product_total_price" status="{{ product.order.status }}">{{ product.get_total_price }}</span>
+                        </p>
+                    </div>
+                    <div class="order_quantity">
+                        <p>
+                            Quantity: {% if product.order.status == "processing" %} {{ product.quantity }} {% endif %}
+                        </p>
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="order_id" value="{{ product.id }}">
+                            <div class="num_inp"{% if product.order.status == "processing" %} style="display: none;" {% endif %}>
+                                <input type="number" id="quantity_inp" status="{{ product.order.status }}" name="quantity" value="{{ product.quantity}}"
+                                    min="1" max="{{ product.product.quantity }}">
+                                <button type="button" class="decrement_quantity"
+                                    onclick="decrementQuantity(update_btn , quantity_inp)">▼</button>
+                                <button type="button" class="increment_quantity"
+                                    onclick="incrementQuantity({{ product.product.quantity }}, update_btn , quantity_inp)">▲</button>
+                            </div>
+                            
+                            <input type="submit" class="update_quantity" id="update_btn" value="Update"
+                                style="display: none;">
+                        </form>
+                    </div>
+                    <div class="detail_category">
+                        <p>
+                            {{ product.product.category}}
+                        </p>
+                    </div>
+                    <div>
+                        order was placed: {{ product.order.created_at }}
+                    </div>
+                    <div class="detail_description order_description">
+                        <p>
+                            {{ product.product.description }}
+                        </p>
+                    </div>
+                    <div class="order_status" status="{{ product.order.status }}">
+                        <p>
+                            {{ product.order.get_status_display }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="total_price">
+        <div class="display_pending_price">
+            <p class="pendding">Pending</p>
+            <p>Quantity: <span class="pending_total_product"></span>x</p>
+            <p>Total Price: $ <span class="pending_count"></span></p>
+        </div>
+        <div class="display_processing_proce">
+            <p class="processing">Pending</p>
+            <p>Quantity <span class="processing_total_product"></span>x</p>
+            <p>Total Price: $ <span class="processing_count"></span> </p>
+        </div>
+    </div>
+</div>
+{% endblock context %}

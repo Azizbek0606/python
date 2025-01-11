@@ -1,0 +1,58 @@
+{% extends "wrapper.html" %}
+{% load static %}
+{% block context %}
+<div class="wrapper">
+    <div class="detail_card">
+        <div class="detail_top">
+            <div class="detail_image">
+                <img src="{{ product.image.url }}" alt="">
+            </div>
+            <div class="detail_top_context">
+                <div>
+                    <h1>
+                        {{ product.name }}
+                    </h1>
+                </div>
+                <div class="price"
+                {% if user.is_staff %}
+                style="right: 200px;"
+                {% endif %}
+                >
+                    <p>
+                        $ {{ product.price }}
+                    </p>
+                </div>
+                <div>
+                    Quantity: {{ product.quantity}}
+                </div>
+                <div class="detail_category">
+                    <p>
+                        {{ product.category}}
+                    </p>
+                </div>
+                <div>
+                    Created: {{ product.created_at }}
+                </div>
+                <div>
+                    Updated: {{ product.updated_at }}
+                </div>
+                {% if request.user.is_staff %}
+                <div class="edit_block">
+                    <a href="{% url 'products:update' product.id %}">
+                        <i class="fa-solid fa-pen"></i>
+                    </a>
+                    <a onclick="confirm_modal_open(modal, modal_context, 'Are you sure? You want to delete {{ product.name }}', btn, '{% url 'products:delete' product.id %}')">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="detail_description">
+            <p>
+                {{ product.description }}
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock context %}

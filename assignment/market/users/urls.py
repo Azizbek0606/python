@@ -5,5 +5,7 @@ app_name='users'
 
 urlpatterns = [
     path("", login_view, name="login"),
-    path("register/", sing_up_view, name="sign_up"),
+    path("register/", singup_view, name="sign_up"),
+    path('logout/', logout_view, name="logout"),
+    path('profile/', profile, name="profile")
 ]
