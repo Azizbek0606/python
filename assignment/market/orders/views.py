@@ -5,11 +5,11 @@ from users.models import Users
 from .models import Order, OrderDetail
 from products.models import Product
 
-# Create your views here.
-
-
-from django.db.models import Q
-
+@login_required
+def change_status(request, order_id):
+    target_order = Order.objects.get(id=order_id)
+    target_order.update_status('processing')
+    return redirect("/orders")
 
 @login_required
 def orders(request):
@@ -19,9 +19,9 @@ def orders(request):
     )
     order_details = OrderDetail.objects.filter(order__in=user_order)
 
-    if request.method == 'POST':
+    if request.method == "POST":
         order_id = request.POST.get("order_id")
-        quantity = request.POST.get('quantity')
+        quantity = request.POST.get("quantity")
         order = OrderDetail.objects.get(id=order_id)
         order.upadate_quantity(quantity)
 

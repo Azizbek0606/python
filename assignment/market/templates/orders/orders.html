@@ -63,6 +63,9 @@
                 </div>
             </div>
         </div>
+        {% if product.order.status == "pending" %}
+        <p id="order_id" style="display: none !important;" >{{ product.order.id }}</p>
+        {% endif %}
         {% endfor %}
     </div>
     <div class="total_price">
@@ -70,9 +73,15 @@
             <p class="pendding">Pending</p>
             <p>Quantity: <span class="pending_total_product"></span>x</p>
             <p>Total Price: $ <span class="pending_count"></span></p>
+            <p class="change_status" onclick="
+            confirm_modal_open(modal, 
+            modal_context, 
+            'Are you sure? You want to Buy all producyt', btn)">
+                Buy Now
+            </p>
         </div>
         <div class="display_processing_proce">
-            <p class="processing">Pending</p>
+            <p class="processing">Processing</p>
             <p>Quantity <span class="processing_total_product"></span>x</p>
             <p>Total Price: $ <span class="processing_count"></span> </p>
         </div>
