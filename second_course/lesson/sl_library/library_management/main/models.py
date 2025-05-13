@@ -11,6 +11,7 @@ class MediaItem(models.Model):
     description = models.TextField(blank=True)
     published_date = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    image = models.ImageField(upload_to="media/images/", null=True, blank=True)
 
     class Meta:
         abstract = True
@@ -49,8 +50,11 @@ class Notifications(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=50, default="unread", choose=["unread", "read"])
-    
+    status = models.CharField(
+        max_length=50,
+        default="unread",
+        choices=[("unread", "Unread"), ("read", "Read")],
+    )
 
     class Meta:
         verbose_name = "Notification"

@@ -11,14 +11,59 @@
 
 <body>
     <header>
-        <h1>Library Management System</h1>
+        <h3><a href="/">Library Management</a></h3>
         <nav>
             <ul>
-                <li><a href="/">Add Book</a></li>
-                <li><a href="/">Search Books</a></li>
+                <li>
+                    <div class="search-box-nav">
+                        <form action="">
+                            <input type="text" id="search-input" name="search" placeholder="Search Book">
+                            <button type="submit">Search</button>
+                        </form>
+                    </div>
+                </li>
+                {% if request.user.is_authenticated %}
+                <a data-url="{% url 'main:logout' %}" id="comfirm-logout">Logout</a>
+                {% else %}
+                <a href="{% url 'main:login' %}">Login</a>
+                {% endif %}
+                <li><a href="{% url 'main:admin' %}">Admin</a></li>
             </ul>
         </nav>
     </header>
+    <main>
+        <div class="container">
+            {% for i in books %}
+            <a href="{% url 'main:detail' i.id %}">
+                <div class="book-card">
+                    <div class="image-info">
+                        <div class="image-block">
+                            <img src="{{ i.image.url }}" alt="Book Cover">
+                        </div>
+                        <div class="title-author">
+                            <h2 id="card-title">{{ i.title }}</h2>
+                            <p id="card-author">{{ i.author }}</p>
+                        </div>
+                    </div>
+                    <div class="book-informations">
+                        <div class="main-info">
+                            <p>
+                                Published: <span>{{ i.published_date|date:"Y" }}</span>
+                            </p>
+                            <p>
+                                Pages: <span>{{ i.pages }}</span>
+                            </p>
+                        </div>
+                        <div class="description">
+                            {{ i.description }}
+                        </div>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </main>
+    <script src="{% static 'js/app.js' %}"></script>
 </body>
 
 </html>

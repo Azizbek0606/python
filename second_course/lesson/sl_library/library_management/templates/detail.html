@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <title>MAIN WINDOW</title>
+</head>
+
+<body>
+    <header>
+        <h3><a href="/">Library Management</a></h3>
+        <nav>
+            <ul>
+                <li><a href="{% url 'main:admin' %}">Admin</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <div class="container">
+            <div class="book-card">
+                <div class="image-info image-info-detail">
+                    <div class="image-block image-block-detail">
+                        <img src="{{ i.image.url }}" alt="Book Cover">
+                    </div>
+                    <div class="title-author">
+                        <h2 id="card-title">{{ i.title }}</h2>
+                        <p id="card-author">{{ i.author }}</p>
+                    </div>
+                </div>
+                <div class="book-informations">
+                    <div class="main-info">
+                        <p>
+                            <span class="book-id">ID: {{ i.id }}</span>
+                        </p>
+                        <p>
+                            <span class="book-created_at">
+                                Created: {{ i.created_at|date:"Y-m-d H:i:s" }}
+                            </span>
+                        </p>
+                        <p>
+                            Published: <span>{{ i.published_date|date:"Y" }}</span>
+                        </p>
+                        <p>
+                            Pages: <span>{{ i.pages }}</span>
+                        </p>
+                    </div>
+                    <div class="description description-detail">
+                        {{ i.description }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>

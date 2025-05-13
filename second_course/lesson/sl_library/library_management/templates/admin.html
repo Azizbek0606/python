@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <title>MAIN WINDOW</title>
+</head>
+
+<body>
+    <header>
+        <h3><a href="/">Library Management</a></h3>
+        <nav>
+            <ul>
+                <li>
+                    <div class="search-box-nav">
+                        <form action="">
+                            <input type="text" id="search-input" name="search" placeholder="Search Book">
+                            <button type="submit">Search</button>
+                        </form>
+                    </div>
+                </li>
+                <li><a href="/">Admin</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <div class="container">
+            {% for i in books %}
+            <div class="book-card book-card-admin">
+                <div class="image-info">
+                    <div class="image-block">
+                        <img src="{{ i.image.url }}" alt="Book Cover">
+                    </div>
+                    <div class="title-author">
+                        <h2 id="card-title">{{ i.title }}</h2>
+                        <p id="card-author">{{ i.author }}</p>
+                    </div>
+                    <div class="admin-tool">
+                        <p>
+                            <a href="{% url 'main:delete' i.id %}">delete</a>
+                        </p>
+                    </div>
+                </div>
+                <div class="book-informations">
+                    <div class="main-info">
+                        <p>
+                            Published: <span>{{ i.published_date|date:"Y" }}</span>
+                        </p>
+                        <p>
+                            Pages: <span>{{ i.pages }}</span>
+                        </p>
+                    </div>
+                    <div class="description">
+                        {{ i.description }}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+    <script src="{% static 'js/app.js' %}"></script>
+</body>
+
+</html>
