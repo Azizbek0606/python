@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+{% block title %}Ovqatlar{% endblock %}
+{% block content %}
+<h2 class="text-3xl font-semibold text-gray-800 mb-6">Ovqatlar</h2>
+<div class="bg-white p-6 rounded-lg shadow-lg mb-6">
+    <h3 class="text-xl font-semibold text-indigo-600 mb-4">Yangi ovqat qo'shish</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <input id="mealName" type="text" placeholder="Ovqat nomi" class="border p-2 rounded w-full">
+        <select id="mealType" class="border p-2 rounded w-full">
+            <option value="nonushta">Nonushta</option>
+            <option value="tushlik">Tushlik</option>
+            <option value="kechki ovqat">Kechki ovqat</option>
+        </select>
+    </div>
+    <button id="addMeal" class="mt-4 bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Ovqatni
+        saqlash</button>
+    <h4 class="text-lg font-semibold mt-6 mb-2">Retsept qo'shish</h4>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <select id="mealSelect" class="border p-2 rounded"></select>
+        <select id="recipeIngredient" class="border p-2 rounded"></select>
+        <input id="recipeQuantity" type="number" placeholder="Miqdori (g)" class="border p-2 rounded">
+        <button id="addRecipe" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Retsept
+            qo'shish</button>
+    </div>
+    <div id="errorAlert" class="hidden mt-4 p-4 bg-red-100 text-red-700 rounded"></div>
+    <div id="successAlert" class="hidden mt-4 p-4 bg-green-100 text-green-700 rounded"></div>
+</div>
+<div class="bg-white p-6 rounded-lg shadow-lg">
+    <h3 class="text-xl font-semibold text-indigo-600 mb-4">Ovqatlar ro‘yxati</h3>
+    <table class="w-full border-collapse">
+        <thead>
+            <tr class="bg-gray-200">
+                <th class="p-2 text-left">Nomi</th>
+                <th class="p-2 text-left">Turi</th>
+                <th class="p-2 text-left">Retseptlar</th>
+                <th class="p-2 text-left">Amallar</th>
+            </tr>
+        </thead>
+        <tbody id="mealTable"></tbody>
+    </table>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const token = localStorage.getItem('authToken');
+        const headers = {
+            'Content-Type': 'application/json',
+            'Authorization': `Token ${token}`
+        };
+        const errorAlert = document.getElementById('errorAlert');
+        const successAlert = document.getElementById('successAlert');
+
+        const showAlert = (element, message) => {
+            element.innerText = message;
+            element.classList.remove('hidden');
+            setTimeout(() => element.classList.add('hidden'), 3000);
+        };
+
+        const loadIngredients = async () => {
+            try {
+                const response = await fetch('/api/ingredients/', { headers });
+                if (!response.ok) throw new Error('Ingredientlarni yuklashda xato');
+                const ingredients = await response.json();
+                const select = document.getElementById('recipeIngredient');
+                select.innerHTML = '<option value="">Ingredient tanlang</option>' +
+                    ingredients.map(ing => `<option value="${ing.id}">${ing.name}</option>`).join('');
+            } catch (err) {
+                showAlert(errorAlert, err.message);
+            }
+        };
+
+        const loadMeals = async () => {
+            try {
+                const response = await fetch('/api/meals/', { headers });
+                if (!response.ok) throw new Error('Ovqatlarni yuklashda xato');
+                const meals = await response.json();
+                const tableBody = document.getElementById('mealTable');
+                const mealSelect = document.getElementById('mealSelect');
+                tableBody.innerHTML = '';
+                mealSelect.innerHTML = '<option value="">Ovqat tanlang</option>' +
+                    meals.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+                for (const meal of meals) {
+                    const recipeResponse = await fetch(`/api/recipes/?meal=${meal.id}`, { headers });
+                    if (!recipeResponse.ok) throw new Error('Retseptlarni yuklashda xato');
+                    const recipes = await recipeResponse.json();
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                    <td class="p-2">${meal.name}</td>
+                    <td class="p-2">${meal.type}</td>
+                    <td class="p-2">${recipes.map(r => `${r.ingredient} (${r.quantity}g)`).join(', ')}</td>
+                    <td class="p-2">
+                        <button class="deleteBtn bg-red-500 text-white px-2 py-1 rounded" data-id="${meal.id}">O'chirish</button>
+                    </td>
+                `;
+                    tableBody.appendChild(row);
+                }
+            } catch (err) {
+                showAlert(errorAlert, err.message);
+            }
+        };
+
+        document.getElementById('addMeal').addEventListener('click', async () => {
+            try {
+                const mealName = document.getElementById('mealName').value.trim();
+                const mealType = document.getElementById('mealType').value;
+                if (!mealName || !mealType) throw new Error('Ovqat nomi va turi kiritilishi shart');
+                const response = await fetch('/api/meals/', {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify({ name: mealName, type: mealType })
+                });
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Ovqat qo‘shishda xato');
+                }
+                showAlert(successAlert, 'Ovqat muvaffaqiyatli qo‘shildi');
+                document.getElementById('mealName').value = '';
+                await loadMeals();
+            } catch (err) {
+                showAlert(errorAlert, err.message);
+            }
+        });
+
+        document.getElementById('addRecipe').addEventListener('click', async () => {
+            try {
+                const mealId = document.getElementById('mealSelect').value;
+                const ingredientId = document.getElementById('recipeIngredient').value;
+                const quantity = parseFloat(document.getElementById('recipeQuantity').value);
+                if (!mealId || !ingredientId || !quantity) throw new Error('Barcha maydonlarni to‘ldiring');
+                const response = await fetch('/api/recipes/', {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify({ meal: mealId, ingredient: ingredientId, quantity })
+                });
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Retsept qo‘shishda xato');
+                }
+                showAlert(successAlert, 'Retsept muvaffaqiyatli qo‘shildi');
+                document.getElementById('recipeQuantity').value = '';
+                await loadMeals();
+            } catch (err) {
+                showAlert(errorAlert, err.message);
+            }
+        });
+
+        document.getElementById('mealTable').addEventListener('click', async (e) => {
+            if (e.target.classList.contains('deleteBtn')) {
+                if (!confirm('Ovqatni o‘chirishni tasdiqlaysizmi?')) return;
+                try {
+                    const id = e.target.dataset.id;
+                    const response = await fetch(`/api/meals/${id}/`, { method: 'DELETE', headers });
+                    if (!response.ok) throw new Error('Ovqatni o‘chirishda xato');
+                    showAlert(successAlert, 'Ovqat muvaffaqiyatli o‘chirildi');
+                    await loadMeals();
+                } catch (err) {
+                    showAlert(errorAlert, err.message);
+                }
+            }
+        });
+
+        await loadIngredients();
+        await loadMeals();
+    });
+</script>
+{% endblock %}

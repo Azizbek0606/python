@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block title %}Ro‘yxatdan o‘tish{% endblock %}
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-gray-100">
+    <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+        <h2 class="text-2xl font-semibold text-indigo-600 mb-6 text-center">Ro‘yxatdan o‘tish</h2>
+        <div class="space-y-4">
+            <div>
+                <label for="username" class="block text-sm font-medium text-gray-700">Foydalanuvchi nomi</label>
+                <input id="username" type="text" placeholder="Foydalanuvchi nomi"
+                    class="mt-1 w-full border p-2 rounded focus:ring-indigo-500 focus:border-indigo-500" required>
+            </div>
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700">Parol</label>
+                <input id="password" type="password" placeholder="Parol"
+                    class="mt-1 w-full border p-2 rounded focus:ring-indigo-500 focus:border-indigo-500" required>
+            </div>
+            <div>
+                <label for="confirmPassword" class="block text-sm font-medium text-gray-700">Parolni tasdiqlash</label>
+                <input id="confirmPassword" type="password" placeholder="Parolni tasdiqlash"
+                    class="mt-1 w-full border p-2 rounded focus:ring-indigo-500 focus:border-indigo-500" required>
+            </div>
+            <button id="registerBtn"
+                class="w-full bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition duration-300">Ro‘yxatdan
+                o‘tish</button>
+        </div>
+        <p class="mt-4 text-center text-sm text-gray-600">
+            Hisobingiz bormi? <a href="/login/" class="text-indigo-600 hover:underline">Kirish</a>
+        </p>
+        <div id="errorAlert" class="hidden mt-4 p-4 bg-red-100 text-red-700 rounded text-center"></div>
+        <div id="successAlert" class="hidden mt-4 p-4 bg-green-100 text-green-700 rounded text-center"></div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('registerBtn').addEventListener('click', async () => {
+            const errorAlert = document.getElementById('errorAlert');
+            const successAlert = document.getElementById('successAlert');
+            try {
+                const data = {
+                    username: document.getElementById('username').value.trim(),
+                    password: document.getElementById('password').value,
+                    confirm_password: document.getElementById('confirmPassword').value
+                };
+                if (!data.username || !data.password || !data.confirm_password) {
+                    throw new Error('Barcha maydonlarni to‘ldiring');
+                }
+                const response = await fetch('/api/register/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                    credentials: 'include' // Session cookie’larini yuborish uchun
+                });
+                const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(result.error || result.confirm_password?.[0] || 'Ro‘yxatdan o‘tishda xato');
+                }
+                successAlert.innerText = 'Muvaffaqiyatli ro‘yxatdan o‘tdingiz! Iltimos, tizimga kiring.';
+                successAlert.classList.remove('hidden');
+                errorAlert.classList.add('hidden');
+                setTimeout(() => window.location.href = '/login/', 2000);
+            } catch (error) {
+                errorAlert.innerText = error.message;
+                errorAlert.classList.remove('hidden');
+                successAlert.classList.add('hidden');
+            }
+        });
+    });
+</script>
+{% endblock %}

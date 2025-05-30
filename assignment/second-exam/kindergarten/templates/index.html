@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+{% block title %}Bosh sahifa{% endblock %}
+{% block content %}
+<h2 class="text-3xl font-semibold text-gray-800 mb-6">Xush Kelibsiz!</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
+        <h3 class="text-xl font-semibold text-indigo-600 mb-2">Ingredientlar</h3>
+        <p class="text-gray-600">Ombordagi mahsulotlarni boshqaring.</p>
+        <a href="/ingredients/"
+            class="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Ko'rish</a>
+    </div>
+    <div class="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
+        <h3 class="text-xl font-semibold text-indigo-600 mb-2">Ovqatlar</h3>
+        <p class="text-gray-600">Ovqat retseptlarini yarating va porsiyalarni hisoblang.</p>
+        <a href="/meals/"
+            class="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Ko'rish</a>
+    </div>
+    <div class="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
+        <h3 class="text-xl font-semibold text-indigo-600 mb-2">Hisobotlar</h3>
+        <p class="text-gray-600">Oylik hisobotlar va ingredientlar iste'molini ko'ring.</p>
+        <a href="/reports/"
+            class="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Ko'rish</a>
+    </div>
+</div>
+<div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Line Chart: Oylik porsiyalar -->
+    <div class="bg-white p-6 rounded-lg shadow-lg">
+        <h3 class="text-xl font-semibold text-gray-800 mb-4">Oylik Tayyorlangan Porsiyalar</h3>
+        <canvas id="consumptionChart" class="w-full h-64"></canvas>
+    </div>
+    <!-- Pie Chart: Ingredientlar miqdori -->
+    <div class="bg-white p-6 rounded-lg shadow-lg">
+        <h3 class="text-xl font-semibold text-gray-800 mb-4">Ingredientlar Miqdori</h3>
+        <canvas id="ingredientPieChart" class="w-full h-64"></canvas>
+    </div>
+    <!-- Bar Chart: Kam qolgan ingredientlar -->
+    <div class="bg-white p-6 rounded-lg shadow-lg">
+        <h3 class="text-xl font-semibold text-gray-800 mb-4">Kam Qolgan Ingredientlar</h3>
+        <canvas id="lowStockBarChart" class="w-full h-64"></canvas>
+    </div>
+    <!-- Doughnut Chart: Ovqat turlari -->
+    <div class="bg-white p-6 rounded-lg shadow-lg">
+        <h3 class="text-xl font-semibold text-gray-800 mb-4">Ovqat Turlari bo‘yicha Porsiyalar</h3>
+        <canvas id="mealTypeChart" class="w-full h-64"></canvas>
+    </div>
+    <!-- Radar Chart: Yetkazib berish oylari -->
+    <div class="bg-white p-6 rounded-lg shadow-lg">
+        <h3 class="text-xl font-semibold text-gray-800 mb-4">Ingredient Yetkazib Berish Oylari</h3>
+        <canvas id="deliveryRadarChart" class="w-full h-64"></canvas>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+            console.error('Autentifikatsiya tokeni topilmadi');
+            return;
+        }
+        const headers = {
+            'Content-Type': 'application/json',
+            'Authorization': `Token ${token}`
+        };
+
+        // Line Chart: Oylik porsiyalar
+        try {
+            const reportResp = await fetch('/api/reports/', { headers });
+            if (!reportResp.ok) throw new Error('Hisobot ma’lumotlari yuklanmadi');
+            const reports = await reportResp.json();
+            const lineLabels = reports.map(r => r.month || 'Noma’lum');
+            const lineData = reports.map(r => r.prepared_portions || 0);
+            new Chart(document.getElementById('consumptionChart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: lineLabels,
+                    datasets: [{
+                        label: 'Tayyorlangan Porsiyalar',
+                        data: lineData,
+                        borderColor: '#4F46E5',
+                        backgroundColor: 'rgba(79, 70, 229, 0.2)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true, title: { display: true, text: 'Porsiyalar' } },
+                        x: { title: { display: true, text: 'Oylar' } }
+                    }
+                }
+            });
+        } catch (err) {
+            console.error('Line chart xatosi:', err.message);
+        }
+
+        // Pie Chart: Ingredientlar miqdori
+        try {
+            const ingredResp = await fetch('/api/ingredients/', { headers });
+            if (!ingredResp.ok) throw new Error('Ingredientlar ma’lumotlari yuklanmadi');
+            const ingredients = await ingredResp.json();
+            const pieLabels = ingredients.map(i => i.name || 'Noma’lum');
+            const pieData = ingredients.map(i => i.quantity || 0);
+            new Chart(document.getElementById('ingredientPieChart').getContext('2d'), {
+                type: 'pie',
+                data: {
+                    labels: pieLabels,
+                    datasets: [{
+                        data: pieData,
+                        backgroundColor: [
+                            '#FF6B6B', '#FF8787',
+                            '#4F46E5', '#6D6AE6',
+                            '#10B981', '#34D399',
+                            '#F59E0B', '#FBBF24',
+                            '#EF4444', '#F87171'
+                        ],
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'top' },
+                        title: { display: true, text: 'Ingredientlar Miqdori (g)' }
+                    }
+                }
+            });
+        } catch (err) {
+            console.error('Pie chart xatosi:', err.message);
+        }
+
+        // Bar Chart: Kam qolgan ingredientlar
+        try {
+            const lowStockResp = await fetch('/api/ingredients/low_stock/', { headers });
+            if (!lowStockResp.ok) throw new Error('Kam qolgan ingredientlar yuklanmadi');
+            const lowStock = await lowStockResp.json();
+            const barLabels = lowStock.map(i => i.name || 'Noma’lum');
+            const barData = lowStock.map(i => i.quantity || 0);
+            new Chart(document.getElementById('lowStockBarChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: barLabels,
+                    datasets: [{
+                        label: 'Qolgan Miqdor (g)',
+                        data: barData,
+                        backgroundColor: '#EF4444',
+                        borderColor: '#DC2626',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true, title: { display: true, text: 'Miqdor (g)' } },
+                        x: { title: { display: true, text: 'Ingredientlar' } }
+                    }
+                }
+            });
+        } catch (err) {
+            console.error('Bar chart xatosi:', err.message);
+        }
+
+        // Doughnut Chart: Ovqat turlari bo‘yicha porsiyalar
+        try {
+            const mealResp = await fetch('/api/meals/by_type/', { headers });
+            if (!mealResp.ok) throw new Error('Ovqat turlari ma’lumotlari yuklanmadi');
+            const meals = await mealResp.json();
+            const mealLabels = meals.map(m => m.type || 'Noma’lum');
+            const mealData = meals.map(m => m.portions || 0);
+            new Chart(document.getElementById('mealTypeChart').getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: mealLabels,
+                    datasets: [{
+                        data: mealData,
+                        backgroundColor: ['#10B981', '#F59E0B', '#4F46E5'],
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'top' },
+                        title: { display: true, text: 'Ovqat Turlari bo‘yicha Porsiyalar' }
+                    }
+                }
+            });
+        } catch (err) {
+            console.error('Doughnut chart xatosi:', err.message);
+        }
+
+        // Radar Chart: Yetkazib berish oylari
+        try {
+            const deliveryResp = await fetch('/api/ingredients/', { headers });
+            if (!deliveryResp.ok) throw new Error('Ingredientlar ma’lumotlari yuklanmadi');
+            const deliveries = await deliveryResp.json();
+            const monthNames = ['Yan', 'Fev', 'Mar', 'Apr', 'May', 'Iyun', 'Iyul', 'Avg', 'Sen', 'Okt', 'Noy', 'Dek'];
+            const radarData = monthNames.map((_, index) => {
+                return deliveries.filter(i => new Date(i.delivery_date).getMonth() === index).length;
+            });
+            new Chart(document.getElementById('deliveryRadarChart').getContext('2d'), {
+                type: 'radar',
+                data: {
+                    labels: monthNames,
+                    datasets: [{
+                        label: 'Yetkazib Berishlar Soni',
+                        data: radarData,
+                        backgroundColor: 'rgba(79, 70, 229, 0.2)',
+                        borderColor: '#4F46E5',
+                        pointBackgroundColor: '#4F46E5'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: { display: true, text: 'Ingredient Yetkazib Berish Oylari' }
+                    },
+                    scales: {
+                        r: { beginAtZero: true }
+                    }
+                }
+            });
+        } catch (err) {
+            console.error('Radar chart xatosi:', err.message);
+        }
+    });
+</script>
+{% endblock %}

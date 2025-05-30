@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block title %}Ovqat berish{% endblock %}
+{% block content %}
+<h2 class="text-3xl font-semibold text-gray-800 mb-6">Ovqat berish</h2>
+<div class="bg-white p-6 rounded-lg shadow-lg mb-6">
+    <h3 class="text-xl font-semibold text-indigo-600 mb-4">Ovqat bering</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <select id="mealSelect" class="border p-2 rounded"></select>
+        <input id="portionCount" type="number" placeholder="Porsiya soni" class="border p-2 rounded" value="1">
+        <button id="serveMeal" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Berish</button>
+    </div>
+    <p id="portionEstimate" class="mt-4 text-gray-600"></p>
+</div>
+<div class="bg-white p-6 rounded-lg shadow-lg">
+    <h3 class="text-xl font-semibold text-indigo-600 mb-4">Ovqat berish loglari</h3>
+    <table class="w-full border-collapse">
+        <thead>
+            <tr class="bg-gray-200">
+                <th class="p-2 text-left">Ovqat</th>
+                <th class="p-2 text-left">Foydalanuvchi</th>
+                <th class="p-2 text-left">Sana</th>
+                <th class="p-2 text-left">Porsiyalar</th>
+            </tr>
+        </thead>
+        <tbody id="servingTable"></tbody>
+    </table>
+</div>
+<div id="errorAlert" class="hidden mt-4 p-4 bg-red-100 text-red-700 rounded"></div>
+{% endblock %}
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const loadMeals = async () => {
+            const response = await fetch('/api/meals/');
+            const meals = await response.json();
+            const select = document.getElementById('mealSelect');
+            select.innerHTML = meals.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+        };
+
+        const loadServings = async () => {
+            const response = await fetch('/api/servings/');
+            const servings = await response.json();
+            const tableBody = document.getElementById('servingTable');
+            tableBody.innerHTML = '';
+            servings.forEach(s => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                <td class="p-2">${s.meal}</td>
+                <td class="p-2">${s.user}</td>
+                <td class="p-2">${s.date_served}</td>
+                <td class="p-2">${s.portion_count}</td>
+            `;
+                tableBody.appendChild(row);
+            });
+        };
+
+        const updatePortionEstimate = async () => {
+            const mealId = document.getElementById('mealSelect').value;
+            const response = await fetch(`/api/servings/portion_estimate/?meal_id=${mealId}`);
+            const data = await response.json();
+            document.getElementById('portionEstimate').innerText = `Mumkin bo‘lgan porsiyalar: ${data.possible_portions}`;
+        };
+
+        document.getElementById('serveMeal').addEventListener('click', async () => {
+            const data = {
+                meal_id: document.getElementById('mealSelect').value,
+                portion_count: parseInt(document.getElementById('portionCount').value)
+            };
+            const response = await fetch('/api/servings/serve_meal/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const result = await response.json();
+            if (response.ok) {
+                loadServings();
+                updatePortionEstimate();
+            } else {
+                document.getElementById('errorAlert').innerText = result.error;
+                document.getElementById('errorAlert').classList.remove('hidden');
+            }
+        });
+
+        document.getElementById('mealSelect').addEventListener('change', updatePortionEstimate);
+
+        loadMeals();
+        loadServings();
+        updatePortionEstimate();
+    });
+</script>
+{% endblock %}

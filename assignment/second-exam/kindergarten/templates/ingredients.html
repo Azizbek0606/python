@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+{% block title %}Ingredientlar{% endblock %}
+{% block content %}
+<h2 class="text-3xl font-semibold text-gray-800 mb-6">Ingredientlar</h2>
+<div class="bg-white p-6 rounded-lg shadow-lg mb-6">
+    <h3 class="text-xl font-semibold text-indigo-600 mb-4">Yangi ingredient qo'shish</h3>
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <input id="ingName" type="text" placeholder="Nomi" class="border p-2 rounded" required>
+        <input id="ingQuantity" type="number" placeholder="Miqdori (g)" class="border p-2 rounded" min="0" required>
+        <input id="ingDeliveryDate" type="date" class="border p-2 rounded" required>
+        <input id="ingMinQuantity" type="number" placeholder="Minimal miqdor (g)" class="border p-2 rounded" min="0"
+            required>
+        <button id="addIngredient"
+            class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Qo‘shish</button>
+    </div>
+    <div id="errorAlert" class="hidden mt-4 p-4 bg-red-100 text-red-700 rounded"></div>
+</div>
+<div class="bg-white p-6 rounded-lg shadow-lg">
+    <h3 class="text-xl font-semibold text-indigo-600 mb-4">Ingredientlar ro‘yxati</h3>
+    <table class="w-full border-collapse">
+        <thead>
+            <tr class="bg-gray-200">
+                <th class="p-2 text-left">Nomi</th>
+                <th class="p-2 text-left">Miqdori (g)</th>
+                <th class="p-2 text-left">Yetkazib berilgan sana</th>
+                <th class="p-2 text-left">Minimal miqdor (g)</th>
+                <th class="p-2 text-left">Amallar</th>
+            </tr>
+        </thead>
+        <tbody id="ingredientTable"></tbody>
+    </table>
+</div>
+<div id="lowStockAlert" class="hidden mt-4 p-4 bg-red-100 text-red-700 rounded"></div>
+
+<!-- Tahrirlash uchun modal -->
+<div id="editModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+        <h3 class="text-xl font-semibold text-indigo-600 mb-4">Ingredientni tahrirlash</h3>
+        <input id="editId" type="hidden">
+        <div class="grid grid-cols-1 gap-4">
+            <input id="editName" type="text" placeholder="Nomi" class="border p-2 rounded" required>
+            <input id="editQuantity" type="number" placeholder="Miqdori (g)" class="border p-2 rounded" min="0"
+                required>
+            <input id="editDeliveryDate" type="date" class="border p-2 rounded" required>
+            <input id="editMinQuantity" type="number" placeholder="Minimal miqdor (g)" class="border p-2 rounded"
+                min="0" required>
+        </div>
+        <div class="mt-4 flex justify-end space-x-2">
+            <button id="cancelEdit" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Bekor
+                qilish</button>
+            <button id="saveEdit"
+                class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Saqlash</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const token = localStorage.getItem('authToken'); // Login tizimidan saqlangan token
+        const errorAlert = document.getElementById('errorAlert');
+        const editModal = document.getElementById('editModal');
+
+        if (!token) {
+            errorAlert.innerText = 'Iltimos, tizimga kiring!';
+            errorAlert.classList.remove('hidden');
+            return;
+        }
+
+        const loadIngredients = async () => {
+            try {
+                const response = await fetch('/api/ingredients/', {
+                    headers: { 'Authorization': `Token ${token}` }
+                });
+                if (!response.ok) throw new Error('Ma’lumotlarni yuklashda xato: ' + response.statusText);
+                const ingredients = await response.json();
+                const tableBody = document.getElementById('ingredientTable');
+                tableBody.innerHTML = '';
+                ingredients.forEach(ing => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                    <td class="p-2">${ing.name}</td>
+                    <td class="p-2">${ing.quantity}</td>
+                    <td class="p-2">${ing.delivery_date}</td>
+                    <td class="p-2">${ing.min_quantity}</td>
+                    <td class="p-2">
+                        <button class="editBtn bg-yellow-500 text-white px-2 py-1 rounded" data-id="${ing.id}">Tahrirlash</button>
+                        <button class="deleteBtn bg-red-500 text-white px-2 py-1 rounded" data-id="${ing.id}">O‘chirish</button>
+                    </td>
+                `;
+                    tableBody.appendChild(row);
+                });
+
+                const lowStockResponse = await fetch('/api/ingredients/low_stock/', {
+                    headers: { 'Authorization': `Token ${token}` }
+                });
+                const lowStock = await lowStockResponse.json();
+                const alertDiv = document.getElementById('lowStockAlert');
+                if (lowStock.length > 0) {
+                    alertDiv.innerHTML = `Ogohlantirish: ${lowStock.map(ing => ing.name).join(', ')} kam zaxirada!`;
+                    alertDiv.classList.remove('hidden');
+                } else {
+                    alertDiv.classList.add('hidden');
+                }
+            } catch (error) {
+                errorAlert.innerText = error.message;
+                errorAlert.classList.remove('hidden');
+            }
+        };
+
+        document.getElementById('addIngredient').addEventListener('click', async () => {
+            try {
+                const data = {
+                    name: document.getElementById('ingName').value.trim(),
+                    quantity: parseFloat(document.getElementById('ingQuantity').value),
+                    delivery_date: document.getElementById('ingDeliveryDate').value,
+                    min_quantity: parseFloat(document.getElementById('ingMinQuantity').value)
+                };
+                if (!data.name || isNaN(data.quantity) || !data.delivery_date || isNaN(data.min_quantity)) {
+                    throw new Error('Barcha maydonlarni to‘g‘ri to‘ldiring');
+                }
+                const response = await fetch('/api/ingredients/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Token ${token}`
+                    },
+                    body: JSON.stringify(data)
+                });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Ingredient qo‘shishda xato');
+                }
+                document.getElementById('ingName').value = '';
+                document.getElementById('ingQuantity').value = '';
+                document.getElementById('ingDeliveryDate').value = '';
+                document.getElementById('ingMinQuantity').value = '';
+                loadIngredients();
+            } catch (error) {
+                errorAlert.innerText = error.message;
+                errorAlert.classList.remove('hidden');
+            }
+        });
+
+        document.getElementById('ingredientTable').addEventListener('click', async (e) => {
+            try {
+                if (e.target.classList.contains('editBtn')) {
+                    const id = e.target.dataset.id;
+                    const response = await fetch(`/api/ingredients/${id}/`, {
+                        headers: { 'Authorization': `Token ${token}` }
+                    });
+                    if (!response.ok) throw new Error('Ma’lumot olishda xato');
+                    const ing = await response.json();
+                    document.getElementById('editId').value = id;
+                    document.getElementById('editName').value = ing.name;
+                    document.getElementById('editQuantity').value = ing.quantity;
+                    document.getElementById('editDeliveryDate').value = ing.delivery_date;
+                    document.getElementById('editMinQuantity').value = ing.min_quantity;
+                    editModal.classList.remove('hidden');
+                }
+                if (e.target.classList.contains('deleteBtn')) {
+                    if (confirm('Haqiqatan ham o‘chirishni xohlaysizmi?')) {
+                        const id = e.target.dataset.id;
+                        const response = await fetch(`/api/ingredients/${id}/`, {
+                            method: 'DELETE',
+                            headers: { 'Authorization': `Token ${token}` }
+                        });
+                        if (!response.ok) {
+                            const errorData = await response.json();
+                            throw new Error(errorData.error || 'O‘chirishda xato');
+                        }
+                        loadIngredients();
+                    }
+                }
+            } catch (error) {
+                errorAlert.innerText = error.message;
+                errorAlert.classList.remove('hidden');
+            }
+        });
+
+        document.getElementById('cancelEdit').addEventListener('click', () => {
+            editModal.classList.add('hidden');
+        });
+
+        document.getElementById('saveEdit').addEventListener('click', async () => {
+            try {
+                const id = document.getElementById('editId').value;
+                const data = {
+                    name: document.getElementById('editName').value.trim(),
+                    quantity: parseFloat(document.getElementById('editQuantity').value),
+                    delivery_date: document.getElementById('editDeliveryDate').value,
+                    min_quantity: parseFloat(document.getElementById('editMinQuantity').value)
+                };
+                if (!data.name || isNaN(data.quantity) || !data.delivery_date || isNaN(data.min_quantity)) {
+                    throw new Error('Barcha maydonlarni to‘g‘ri to‘ldiring');
+                }
+                const response = await fetch(`/api/ingredients/${id}/`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Token ${token}`
+                    },
+                    body: JSON.stringify(data)
+                });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Tahrirlashda xato');
+                }
+                editModal.classList.add('hidden');
+                loadIngredients();
+            } catch (error) {
+                errorAlert.innerText = error.message;
+                errorAlert.classList.remove('hidden');
+            }
+        });
+
+        loadIngredients();
+    });
+</script>
+{% endblock %}

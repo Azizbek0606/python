@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}Tizimdan chiqish{% endblock %}
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-gray-100">
+    <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+        <h2 class="text-2xl font-semibold text-indigo-600 mb-6 text-center">Tizimdan chiqish</h2>
+        <p class="text-center text-gray-700 mb-6">Haqiqatan ham tizimdan chiqmoqchimisiz?</p>
+        <div class="flex justify-center space-x-4">
+            <button id="logoutBtn"
+                class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition duration-300">Chiqish</button>
+            <a href="/ingredients/"
+                class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition duration-300">Bekor
+                qilish</a>
+        </div>
+        <div id="errorAlert" class="hidden mt-4 p-4 bg-red-100 text-red-700 rounded text-center"></div>
+        <div id="successAlert" class="hidden mt-4 p-4 bg-green-100 text-green-700 rounded text-center"></div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            const errorAlert = document.getElementById('errorAlert');
+            const successAlert = document.getElementById('successAlert');
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    throw new Error('Siz tizimga kirmagansiz');
+                }
+                const response = await fetch('/api/logout/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Token ${token}`
+                    },
+                    credentials: 'include' // Session cookie’larini yuborish uchun
+                });
+                const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(result.error || 'Chiqishda xato');
+                }
+                localStorage.removeItem('authToken');
+                successAlert.innerText = 'Muvaffaqiyatli chiqdingiz!';
+                successAlert.classList.remove('hidden');
+                errorAlert.classList.add('hidden');
+                setTimeout(() => window.location.href = '/login/', 2000);
+            } catch (error) {
+                errorAlert.innerText = error.message;
+                errorAlert.classList.remove('hidden');
+                successAlert.classList.add('hidden');
+            }
+        });
+    });
+</script>
+{% endblock %}

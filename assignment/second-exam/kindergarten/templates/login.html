@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}Tizimga kirish{% endblock %}
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-gray-100">
+    <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+        <h2 class="text-2xl font-semibold text-indigo-600 mb-6 text-center">Tizimga kirish</h2>
+        <div class="space-y-4">
+            <div>
+                <label for="username" class="block text-sm font-medium text-gray-700">Foydalanuvchi nomi</label>
+                <input id="username" type="text" placeholder="Foydalanuvchi nomi"
+                    class="mt-1 w-full border p-2 rounded focus:ring-indigo-500 focus:border-indigo-500" required>
+            </div>
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700">Parol</label>
+                <input id="password" type="password" placeholder="Parol"
+                    class="mt-1 w-full border p-2 rounded focus:ring-indigo-500 focus:border-indigo-500" required>
+            </div>
+            <button id="loginBtn"
+                class="w-full bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition duration-300">Kirish</button>
+        </div>
+        <p class="mt-4 text-center text-sm text-gray-600">
+            Hisobingiz yo‘qmi? <a href="/register/" class="text-indigo-600 hover:underline">Ro‘yxatdan o‘ting</a>
+        </p>
+        <div id="errorAlert" class="hidden mt-4 p-4 bg-red-100 text-red-700 rounded text-center"></div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('loginBtn').addEventListener('click', async () => {
+            const errorAlert = document.getElementById('errorAlert');
+            try {
+                const data = {
+                    username: document.getElementById('username').value.trim(),
+                    password: document.getElementById('password').value
+                };
+                if (!data.username || !data.password) {
+                    throw new Error('Foydalanuvchi nomi va parolni kiriting');
+                }
+                const response = await fetch('/api/login/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                    credentials: 'include' // Session cookie’larini yuborish uchun
+                });
+                const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(result.detail || result.non_field_errors || 'Kirishda xato');
+                }
+                localStorage.setItem('authToken', result.token);
+                window.location.href = '/ingredients/';
+            } catch (error) {
+                errorAlert.innerText = error.message;
+                errorAlert.classList.remove('hidden');
+            }
+        });
+    });
+</script>
+{% endblock %}

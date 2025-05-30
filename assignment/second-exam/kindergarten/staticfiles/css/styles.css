@@ -1,0 +1,24 @@
+/* Custom styles to complement Tailwind */
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+nav a {
+    transition: color 0.3s ease;
+}
+
+.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+table tr:hover {
+    background-color: #f9fafb;
+}
+
+button {
+    transition: background-color 0.3s ease;
+}

@@ -1,0 +1,334 @@
+{% extends 'base.html' %}
+{% block title %}Hisobotlar{% endblock %}
+{% block content %}
+<h2 class="text-3xl font-semibold text-gray-800 mb-6">Hisobotlar</h2>
+<div id="errorAlert" class="hidden mt-4 p-4 bg-red-100 text-red-700 rounded"></div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Bar Chart: Porsiyalar taqqoslash -->
+    <div class="bg-white p-6 rounded-lg shadow-lg">
+        <h3 class="text-xl font-semibold text-indigo-600 mb-4">Porsiyalar taqqoslash</h3>
+        <canvas id="reportChart" class="w-full h-64"></canvas>
+    </div>
+    <!-- Pie Chart: Ogohlantirishlar soni -->
+    <div class="bg-white p-6 rounded-lg shadow-lg">
+        <h3 class="text-xl font-semibold text-indigo-600 mb-4">Ovqatlar bo‘yicha ogohlantirishlar</h3>
+        <canvas id="warningChart" class="w-full h-64"></canvas>
+    </div>
+    <!-- Line Chart: Farq foizi -->
+    <div class="bg-white p-6 rounded-lg shadow-lg">
+        <h3 class="text-xl font-semibold text-indigo-600 mb-4">Oylik farq foizi</h3>
+        <canvas id="differenceChart" class="w-full h-64"></canvas>
+    </div>
+    <!-- Doughnut Chart: Ovqat turlari bo‘yicha porsiyalar -->
+    <div class="bg-white p-6 rounded-lg shadow-lg">
+        <h3 class="text-xl font-semibold text-indigo-600 mb-4">Ovqat turlari bo‘yicha porsiyalar</h3>
+        <canvas id="typeChart" class="w-full h-64"></canvas>
+    </div>
+    <!-- Radar Chart: Foydalanuvchilar bo‘yicha porsiyalar -->
+    <div class="bg-white p-6 rounded-lg shadow-lg">
+        <h3 class="text-xl font-semibold text-indigo-600 mb-4">Foydalanuvchilar bo‘yicha xizmatlar</h3>
+        <canvas id="userChart" class="w-full h-64"></canvas>
+    </div>
+    <!-- Area Chart: Xizmat sanasi bo‘yicha porsiyalar -->
+    <div class="bg-white p-6 rounded-lg shadow-lg">
+        <h3 class="text-xl font-semibold text-indigo-600 mb-4">Oylik xizmat porsiyalari</h3>
+        <canvas id="dateChart" class="w-full h-64"></canvas>
+    </div>
+</div>
+<div class="bg-white p-6 rounded-lg shadow-lg mb-6">
+    <h3 class="text-xl font-semibold text-indigo-600 mb-4">Oylik hisobotlar</h3>
+    <table class="w-full border-collapse">
+        <thead>
+            <tr class="bg-gray-200">
+                <th class="p-2 text-left">Ovqat</th>
+                <th class="p-2 text-left">Oy</th>
+                <th class="p-2 text-left">Tayyorlangan porsiyalar</th>
+                <th class="p-2 text-left">Mumkin bo‘lgan porsiyalar</th>
+                <th class="p-2 text-left">Farq (%)</th>
+                <th class="p-2 text-left">Ogohlantirish</th>
+            </tr>
+        </thead>
+        <tbody id="reportTable"></tbody>
+    </table>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+            console.error('Autentifikatsiya tokeni topilmadi');
+            return;
+        }
+
+        const headers = {
+            'Content-Type': 'application/json',
+            'Authorization': `Token ${token}`
+        };
+
+        const errorAlert = document.getElementById('errorAlert');
+        const showError = (message) => {
+            errorAlert.innerText = message;
+            errorAlert.classList.remove('hidden');
+            setTimeout(() => errorAlert.classList.add('hidden'), 3000);
+        };
+
+        const loadReports = async () => {
+            try {
+                const response = await fetch('/api/reports/', { headers });
+                if (!response.ok) throw new Error('Hisobotlarni yuklashda xato');
+                const reports = await response.json();
+                const tableBody = document.getElementById('reportTable');
+                tableBody.innerHTML = '';
+
+                reports.forEach(r => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="p-2">${r.meal}</td>
+                        <td class="p-2">${r.month}</td>
+                        <td class="p-2">${r.prepared_portions}</td>
+                        <td class="p-2">${r.possible_portions}</td>
+                        <td class="p-2">${r.difference_percentage.toFixed(2)}%</td>
+                        <td class="p-2">${r.warning_triggered ? '<span class="text-red-600">Ha</span>' : 'Yo‘q'}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+
+                // Bar Chart: Porsiyalar taqqoslash
+                new Chart(document.getElementById('reportChart').getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: reports.map(r => r.month),
+                        datasets: [
+                            {
+                                label: 'Tayyorlangan porsiyalar',
+                                data: reports.map(r => r.prepared_portions),
+                                backgroundColor: 'rgba(79, 70, 229, 0.5)',
+                            },
+                            {
+                                label: 'Mumkin bo‘lgan porsiyalar',
+                                data: reports.map(r => r.possible_portions),
+                                backgroundColor: 'rgba(34, 197, 94, 0.5)',
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Porsiyalar'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Oylar'
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // Line Chart: Farq foizi
+                new Chart(document.getElementById('differenceChart').getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: reports.map(r => r.month),
+                        datasets: [{
+                            label: 'Farq foizi (%)',
+                            data: reports.map(r => r.difference_percentage),
+                            borderColor: '#F59E0B',
+                            backgroundColor: 'rgba(245, 158, 11, 0.2)',
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Foiz (%)'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Oylar'
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (err) {
+                showError(err.message);
+            }
+        };
+
+        const loadWarnings = async () => {
+            try {
+                const response = await fetch('/api/reports/warnings/', { headers });
+                if (!response.ok) throw new Error('Ogohlantirishlarni yuklashda xato');
+                const warnings = await response.json();
+
+                new Chart(document.getElementById('warningChart').getContext('2d'), {
+                    type: 'pie',
+                    data: {
+                        labels: warnings.map(w => w.meal__name),
+                        datasets: [{
+                            data: warnings.map(w => w.count),
+                            backgroundColor: ['#FF6B6B', '#4F46E5', '#10B981', '#F59E0B']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { position: 'top' },
+                            title: {
+                                display: true,
+                                text: 'Ogohlantirishlar soni'
+                            }
+                        }
+                    }
+                });
+            } catch (err) {
+                showError(err.message);
+            }
+        };
+
+        const loadTypeData = async () => {
+            try {
+                const response = await fetch('/api/meals/by_type/', { headers });
+                if (!response.ok) throw new Error('Ovqat turlari ma\'lumotlarini yuklashda xato');
+                const meals = await response.json();
+
+                new Chart(document.getElementById('typeChart').getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: meals.map(m => m.type),
+                        datasets: [{
+                            data: meals.map(m => m.portions),
+                            backgroundColor: ['#10B981', '#F59E0B', '#4F46E5']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { position: 'top' },
+                            title: {
+                                display: true,
+                                text: 'Ovqat turlari bo‘yicha porsiyalar'
+                            }
+                        }
+                    }
+                });
+            } catch (err) {
+                showError(err.message);
+            }
+        };
+
+        const loadUserData = async () => {
+            try {
+                const response = await fetch('/api/servings/by_user/', { headers });
+                if (!response.ok) throw new Error('Foydalanuvchi ma\'lumotlarini yuklashda xato');
+                const users = await response.json();
+
+                new Chart(document.getElementById('userChart').getContext('2d'), {
+                    type: 'radar',
+                    data: {
+                        labels: users.map(u => u.user__username),
+                        datasets: [{
+                            label: 'Xizmat porsiyalari',
+                            data: users.map(u => u.total_portions),
+                            backgroundColor: 'rgba(79, 70, 229, 0.2)',
+                            borderColor: '#4F46E5'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Foydalanuvchilar bo‘yicha xizmatlar'
+                            }
+                        },
+                        scales: {
+                            r: { beginAtZero: true }
+                        }
+                    }
+                });
+            } catch (err) {
+                showError(err.message);
+            }
+        };
+
+        const loadDateData = async () => {
+            try {
+                const response = await fetch('/api/servings/by_date/', { headers });
+                if (!response.ok) throw new Error('Xizmat sanasi ma\'lumotlarini yuklashda xato');
+                const dates = await response.json();
+                const monthNames = ['Yan', 'Fev', 'Mar', 'Apr', 'May', 'Iyun', 'Iyul', 'Avg', 'Sen', 'Okt', 'Noy', 'Dek'];
+
+                new Chart(document.getElementById('dateChart').getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: dates.map(d => monthNames[d.date_served__month - 1]),
+                        datasets: [{
+                            label: 'Xizmat porsiyalari',
+                            data: dates.map(d => d.total_portions),
+                            borderColor: '#EF4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Oylik xizmat porsiyalari'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Porsiyalar'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Oylar'
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (err) {
+                showError(err.message);
+            }
+        };
+
+        // Load all data
+        try {
+            await Promise.all([
+                loadReports(),
+                loadWarnings(),
+                loadTypeData(),
+                loadUserData(),
+                loadDateData()
+            ]);
+        } catch (err) {
+            showError('Ma\'lumotlarni yuklashda umumiy xato: ' + err.message);
+        }
+    });
+</script>
+{% endblock %}
