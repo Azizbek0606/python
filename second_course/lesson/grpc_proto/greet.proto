@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package greet;
+
+service HelloService {
+  rpc SayHello (HelloRequest) returns (HelloResponse);
+}
+
+service AlikService {
+  rpc SayAlik (AlikRequest) returns (AlikResponse);
+}
+
+message HelloRequest {
+  string name = 1;
+}
+
+message HelloResponse {
+  string message = 1;
+}
+
+message AlikRequest {
+  string name = 1;
+}
+
+message AlikResponse {
+  string message = 1;
+}
