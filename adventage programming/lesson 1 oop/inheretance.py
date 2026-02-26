@@ -1,178 +1,168 @@
-# class LivingBeing:
-#     def __init__(self, name):
-#         self.name = name
-        
-#     def set_bug(self):
-#         return 2 / 0
-
-# class Animal(LivingBeing):
-#     def __init__(self, name, species):
-#         super().__init__(name)
-    
-#     def breath(self):
-#         return f"{self.name} is breathing."
-    
-# class Mammal(Animal):
-#     def __init__(self, name, species):
-#         super().__init__(name, species)
-    
-#     def walk(self):
-#         return f"{self.name} is walking on two legs."
-
-# class Human(Mammal):
-#     def __init__(self, name, species, language):
-#         super().__init__(name, species)
-#         self.language = language
-    
-#     def speak(self):
-#         return f"{self.name} says hello in {self.language}."
-    
-# human = Human("Alice", "Homo sapiens", "English")
-
-# print(human.set_bug())
-# print(human.breath())
-# print(human.walk())
-# print(human.speak())
-
-
-# class Employee:
-#     def __init__(self, name, base_salary):
-#         self.name = name
-#         self.base_salary = base_salary
-    
-#     def calculate_salary(self):
-#         return self.base_salary
-
-# class Developer(Employee):
-
-#     def __init__(self, name, base_salary, line_of_code, bug_rate):
-#         super().__init__(name, base_salary)
-#         self.line_of_code = line_of_code
-#         self.bug_rate = bug_rate
-
-#     def calculate_salary(self):
-#         return super().calculate_salary()
-
-#     def salary(self):
-#         return f"{self.name} - {self.base_salary - (self.line_of_code * 0.5) - (self.base_salary * 50)}"
-
-# class Manager(Employee):
-#     def __init__(self, name, base_salary, team_size, bonus_per_member):
-#         super().__init__(name, base_salary)
-#         self.team_size = team_size
-#         self.bonus_per_member = bonus_per_member
-
-#     def calculate_salary(self):
-#         return super().calculate_salary()
-
-#     def salary(self):
-#         return f"{self.name} - {self.base_salary + (self.team_size * self.bonus_per_member)}"
-
-# dev = Developer("Alice", 5000, 100, 2)
-# mgr = Manager("Bob", 7000, 5, 200)
-# print(dev.salary())
-# print(mgr.salary()) 
-
-
-# from abc import ABC, abstractmethod
-
-# class Payment(ABC):
-#     @abstractmethod
-#     def pay(self):
-#         pass
-
-# class CreditCardPayment(Payment):
-#     def __init__(self, card_number):
-#         self.card_number = card_number
-    
-#     def pay(self):
-#         return f"\nPaid with credit card {self.card_number}\n"
-    
-# class PayPalPayment(Payment):
-#     def __init__(self, email):
-#         self.email = email
-    
-#     def pay(self):
-#         return f"Paid with PayPal account {self.email}\n"
-
-# class BankTransferPayment(Payment):
-#     def __init__(self, account_number):
-#         self.account_number = account_number
-    
-#     def pay(self):
-#         return f"Paid with bank transfer from account {self.account_number}\n"
-
-# class PaymentProcess:
-#     def __init__(self, payment_method: Payment):
-#         self.payment_method = payment_method
-    
-#     def process_payment(self):
-#         return self.payment_method.pay()
-
-
-# credit_card_payment = CreditCardPayment("1234-5678-9012-3456")
-# paypal_payment = PayPalPayment("example@paypal.com")
-# bank_transfer_payment = BankTransferPayment("9876543210")
-
-# payment_process1 = PaymentProcess(credit_card_payment)
-# payment_process2 = PaymentProcess(paypal_payment)
-# payment_process3 = PaymentProcess(bank_transfer_payment)
-
-# print("\n==================================")
-# print(payment_process1.process_payment())
-# print(payment_process2.process_payment())
-# print(payment_process3.process_payment())
-# print("==================================\n")
-
 from abc import ABC, abstractmethod
+import random
 
-class Shape(ABC):
+# Abstract BaseWeapon interface
+class BaseWeapon(ABC):
     @abstractmethod
-    def area(self):
+    def get_damage(self):
         pass
 
     @abstractmethod
-    def perimeter(self):
+    def get_name(self):
         pass
 
-class Rectangle(Shape):
-    def __init__(self, width, height):
-        self.width = width
-        self.height = height
+# Melee weapons
+class Sword(BaseWeapon):
+    def get_damage(self):
+        return random.randint(10, 20)  # High damage, close range
 
-    def area(self):
-        return self.width * self.height
+    def get_name(self):
+        return "Sword"
 
-    def perimeter(self):
-        return 2 * (self.width + self.height)
+class Hammer(BaseWeapon):
+    def get_damage(self):
+        return random.randint(15, 25)  # Higher damage but maybe slower, but for simplicity same
 
-class Circle(Shape):
-    def __init__(self, radius):
-        self.radius = radius
+    def get_name(self):
+        return "Hammer"
 
-    def area(self):
-        return 3.14159 * self.radius ** 2
+# Ranged weapons
+class Bow(BaseWeapon):
+    def get_damage(self):
+        return random.randint(8, 15)  # Medium damage
 
-    def perimeter(self):
-        return 2 * 3.14159 * self.radius
+    def get_name(self):
+        return "Bow"
 
-class Triangle(Shape):
-    def __init__(self, a, b, c):
-        self.a = a
-        self.b = b
-        self.c = c
+class Crossbow(BaseWeapon):
+    def get_damage(self):
+        return random.randint(12, 18)  # Slightly higher
 
-    def area(self):
-        s = (self.a + self.b + self.c) / 2
-        return (s * (s - self.a) * (s - self.b) * (s - self.c)) ** 0.5
+    def get_name(self):
+        return "Crossbow"
 
-    def perimeter(self):
-        return self.a + self.b + self.c
+# Magic weapons
+class Fire(BaseWeapon):
+    def get_damage(self):
+        return random.randint(15, 30)  # High variance
 
-rect = Rectangle(4, 5)
-circle = Circle(3)
-triangle = Triangle(3, 4, 5)
+    def get_name(self):
+        return "Fire Magic"
 
-print(f"Rectangle area: {rect.area()}, perimeter: {rect.perimeter()}")
-print(f"Circle area: {circle.area()}, perimeter: {circle.perimeter()}")
-print(f"Triangle area: {triangle.area()}, perimeter: {triangle.perimeter()}")
+class Ice(BaseWeapon):
+    def get_damage(self):
+        return random.randint(10, 25)  # Freeze effect, but for simplicity damage only
+
+    def get_name(self):
+        return "Ice Magic"
+
+# Abstract BaseCharacter interface
+class BaseCharacter(ABC):
+    def __init__(self, hp):
+        self.hp = hp
+
+    @abstractmethod
+    def attack(self, enemy):
+        pass
+
+    def is_alive(self):
+        return self.hp > 0
+
+# Player class
+class Player(BaseCharacter):
+    def __init__(self, weapon):
+        super().__init__(100)  # Default HP 100
+        self.weapon = weapon
+
+    def attack(self, enemy):
+        damage = self.weapon.get_damage()
+        enemy.hp -= damage
+        print(f"Player attacks with {self.weapon.get_name()} for {damage} damage. Enemy HP: {enemy.hp if enemy.hp > 0 else 0}")
+
+# Enemy subclasses
+class Enemy(BaseCharacter):
+    @abstractmethod
+    def get_name(self):
+        pass
+
+class Goblin(Enemy):
+    def __init__(self):
+        super().__init__(50)  # Low HP
+        self.damage = random.randint(10, 15)  # Medium damage
+
+    def attack(self, player):
+        player.hp -= self.damage
+        print(f"Goblin attacks for {self.damage} damage. Player HP: {player.hp if player.hp > 0 else 0}")
+
+    def get_name(self):
+        return "Goblin"
+
+class Orc(Enemy):
+    def __init__(self):
+        super().__init__(150)  # High HP
+        self.damage = random.randint(5, 10)  # Low damage
+
+    def attack(self, player):
+        player.hp -= self.damage
+        print(f"Orc attacks for {self.damage} damage. Player HP: {player.hp if player.hp > 0 else 0}")
+
+    def get_name(self):
+        return "Orc"
+
+class Troll(Enemy):  # Added a third enemy for completeness: Medium HP, high damage, slow
+    def __init__(self):
+        super().__init__(100)  # Medium HP
+        self.damage = random.randint(15, 20)  # High damage
+
+    def attack(self, player):
+        player.hp -= self.damage
+        print(f"Troll attacks for {self.damage} damage. Player HP: {player.hp if player.hp > 0 else 0}")
+
+    def get_name(self):
+        return "Troll"
+
+# Game logic
+def choose_weapon():
+    print("Choose your weapon:")
+    print("1. Sword (Melee)")
+    print("2. Hammer (Melee)")
+    print("3. Bow (Ranged)")
+    print("4. Crossbow (Ranged)")
+    print("5. Fire (Magic)")
+    print("6. Ice (Magic)")
+    choice = int(input("Enter number: "))
+    weapons = [Sword(), Hammer(), Bow(), Crossbow(), Fire(), Ice()]
+    return weapons[choice - 1]
+
+def get_random_enemy():
+    enemies = [Goblin(), Orc(), Troll()]
+    return random.choice(enemies)
+
+def fight(player, enemy):
+    print(f"\nFighting {enemy.get_name()} (HP: {enemy.hp})")
+    while player.is_alive() and enemy.is_alive():
+        player.attack(enemy)
+        if enemy.is_alive():
+            enemy.attack(player)
+    return player.is_alive()
+
+def main():
+    weapon = choose_weapon()
+    player = Player(weapon)
+    score = 0
+    round_num = 1
+
+    while player.is_alive():
+        enemy = get_random_enemy()
+        if fight(player, enemy):
+            score += 1
+            player.hp += 20  # Add HP after each win for better gameplay
+            player.hp = min(player.hp, 200)  # Cap at 200
+            print(f"Round {round_num} won! Score: {score}. Player HP restored to {player.hp}")
+            round_num += 1
+        else:
+            print(f"Game over! Total score: {score}")
+            break
+
+if __name__ == "__main__":
+    main()

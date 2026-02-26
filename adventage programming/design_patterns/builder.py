@@ -7,7 +7,7 @@
 #         self.gpu = None
 #         self.os = None
 #         self.wifi_enabled = None
-
+#
 #     def __str__(self):
 #         return (f"Computer Specifications:\n"
 #                 f"CPU: {self.cpu}\n"
@@ -16,68 +16,68 @@
 #                 f"GPU: {self.gpu}\n"
 #                 f"OS: {self.os}\n"
 #                 f"WiFi Enabled: {self.wifi_enabled}")
-
-
+#
+#
 # class ComputerBuilder(ABC):
 #     @abstractmethod
 #     def set_cpu(self, cpu):
 #         pass
-
+#
 #     @abstractmethod
 #     def set_ram(self, ram):
 #         pass
-
+#
 #     @abstractmethod
 #     def set_storage(self, storage):
 #         pass
-
+#
 #     @abstractmethod
 #     def set_gpu(self, gpu):
 #         pass
-
+#
 #     @abstractmethod
 #     def set_os(self, os):
 #         pass
-
+#
 #     @abstractmethod
 #     def set_wifi_enabled(self, wifi_enabled):
 #         pass
-
+#
 #     @abstractmethod
 #     def get_computer(self):
 #         pass
-
-
+#
+#
 # class GamingComputerBuilder(ComputerBuilder):
 #     def __init__(self):
 #         self.computer = Computer()
-
+#
 #     def set_cpu(self, cpu):
 #         self.computer.cpu = cpu
-
+#
 #     def set_ram(self, ram):
 #         self.computer.ram = ram
-
+#
 #     def set_storage(self, storage):
 #         self.computer.storage = storage
-
+#
 #     def set_gpu(self, gpu):
 #         self.computer.gpu = gpu
-
+#
 #     def set_os(self, os):
 #         self.computer.os = os
-
+#
 #     def set_wifi_enabled(self, wifi_enabled):
 #         self.computer.wifi_enabled = wifi_enabled
-
+#
 #     def get_computer(self):
 #         return self.computer
-
-
+#
+#
 # class ComputerDirector:
 #     def __init__(self, builder: ComputerBuilder):
 #         self.builder = builder
-
+#
 #     def construct_gaming_computer(self):
 #         self.builder.set_cpu("Intel Core i9")
 #         self.builder.set_ram("32GB")
@@ -86,30 +86,16 @@
 #         self.builder.set_os("Windows 11")
 #         self.builder.set_wifi_enabled(True)
 #         return self.builder.get_computer()
-    
-
+#
+#
 # builder = GamingComputerBuilder()
 # director = ComputerDirector(builder)
 # gaming_computer = director.construct_gaming_computer()
 # print(gaming_computer)
 # print(isinstance(gaming_computer, Computer))
-
+#
 
 # facade tasks:
-'''
-class UserProfile:
-    def __init__(self, username, email, age, phone, address):
-        self.username = username
-        self.email = email
-        self.age = age
-        self.phone = phone
-        self.address = address
-
-    def __repr__(self):
-        return (f"UserProfile(username={self.username}, email={self.email}, "
-                f"age={self.age}, phone={self.phone}, address={self.address})")
-Implement with Director
-'''
 
 
 
